@@ -37,4 +37,12 @@ public class Category : BaseEntity
 
         return new Category(id, name);
     }
+
+    public void UpdateName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("El nombre de la categoría no puede estar vacío.", nameof(name));
+
+        Name = name;
+    }
 }

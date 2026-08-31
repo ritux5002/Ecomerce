@@ -12,6 +12,7 @@ public class Order : BaseEntity
     public Guid CustomerId { get; private set; }
     public OrderStatus Status { get; private set; }
     public DateTime CreatedAt { get; private set; }
+    public string? TransactionId { get; private set; }
     public ICollection<OrderItem> Items { get; private set; }
 
     private Order(Guid id, Guid customerId) : base(id)
@@ -46,7 +47,13 @@ public class Order : BaseEntity
         return new Order(id, customerId);
     }
 
-    public void AddItem(Guid productId, int quantity, decimal unitPrice)
+    /// <summary>
+    /// Agrega un producto a la orden. Devuelve el <see cref="OrderItem"/> recién creado
+    /// cuando el producto no estaba en la orden, o null cuando se fusionó con un ítem
+    /// existente (aumentando su cantidad) — el caller usa ese valor para saber si debe
+    /// registrar explícitamente el nuevo ítem en el repositorio.
+    /// </summary>
+    public OrderItem? AddItem(Guid productId, int quantity, decimal unitPrice)
     {
         if (Status != OrderStatus.Draft)
             throw new DomainRuleException("No se pueden agregar ítems a una orden que no está en estado Draft.");
@@ -61,12 +68,12 @@ public class Order : BaseEntity
         if (existingItem is not null)
         {
             existingItem.UpdateQuantity(existingItem.Quantity + quantity);
+            return null;
         }
-        else
-        {
-            var item = OrderItem.Create(Id, productId, quantity, unitPrice);
-            Items.Add(item);
-        }
+
+        var item = OrderItem.Create(Id, productId, quantity, unitPrice);
+        Items.Add(item);
+        return item;
     }
 
     public void Confirm()
@@ -82,16 +89,34 @@ public class Order : BaseEntity
 
     public void Cancel()
     {
-        if (Status == OrderStatus.Cancelled || Status == OrderStatus.Delivered)
-            throw new DomainRuleException("No se puede cancelar una orden que ya fue cancelada o entregada.");
+        if (Status == OrderStatus.Cancelled || Status == OrderStatus.Delivered || Status == OrderStatus.Paid)
+            throw new DomainRuleException("No se puede cancelar una orden que ya fue cancelada, entregada o pagada.");
 
         Status = OrderStatus.Cancelled;
     }
 
-    public void Ship()
+    public void MarkAsPaid(string transactionId)
     {
         if (Status != OrderStatus.Confirmed)
-            throw new DomainRuleException("Solo se pueden enviar órdenes en estado Confirmed.");
+            throw new DomainRuleException("Solo se pueden marcar como pagadas las órdenes en estado Confirmed.");
+
+        Status = OrderStatus.Paid;
+        TransactionId = transactionId;
+    }
+
+    public void MarkPaymentRejected(string? transactionId)
+    {
+        if (Status != OrderStatus.Confirmed)
+            throw new DomainRuleException("Solo se puede rechazar el pago de órdenes en estado Confirmed.");
+
+        Status = OrderStatus.PaymentRejected;
+        TransactionId = transactionId;
+    }
+
+    public void Ship()
+    {
+        if (Status != OrderStatus.Paid)
+            throw new DomainRuleException("Solo se pueden enviar órdenes en estado Paid.");
 
         Status = OrderStatus.Shipped;
     }

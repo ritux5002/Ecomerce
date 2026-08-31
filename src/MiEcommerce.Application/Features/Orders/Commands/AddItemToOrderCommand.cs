@@ -48,7 +48,10 @@ public class AddItemToOrderCommandHandler : IRequestHandler<AddItemToOrderComman
         if (product is null)
             throw new Domain.Exceptions.NotFoundException(nameof(Product), command.ProductId);
 
-        order.AddItem(command.ProductId, command.Quantity, product.Price);
+        var newItem = order.AddItem(command.ProductId, command.Quantity, product.Price);
+        if (newItem is not null)
+            await _orderRepository.AddOrderItemAsync(newItem, cancellationToken);
+
         await _orderRepository.UpdateAsync(order, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

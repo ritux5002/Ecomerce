@@ -67,8 +67,8 @@ public class OrdersController : ControllerBase
     public async Task<IActionResult> Confirm(Guid orderId, CancellationToken cancellationToken)
     {
         var command = new ConfirmOrderCommand(orderId);
-        await _mediator.Send(command, cancellationToken);
-        return NoContent();
+        var result = await _mediator.Send(command, cancellationToken);
+        return Ok(result);
     }
 
     [HttpPost("{orderId}/cancel")]

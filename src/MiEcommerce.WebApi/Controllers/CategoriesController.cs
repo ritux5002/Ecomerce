@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MiEcommerce.Application.Features.Categories.Commands.CreateCategory;
+using MiEcommerce.Application.Features.Categories.Commands.UpdateCategory;
 using MiEcommerce.Application.Features.Categories.Queries.GetAll;
 
 namespace MiEcommerce.WebApi.Controllers;
@@ -34,4 +35,18 @@ public class CategoriesController : ControllerBase
         var result = await _mediator.Send(command, cancellationToken);
         return CreatedAtAction(nameof(GetAll), new { id = result.Id }, result);
     }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(
+        Guid id,
+        [FromBody] UpdateCategoryRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdateCategoryCommand(id, request.Name);
+        await _mediator.Send(command, cancellationToken);
+        return NoContent();
+    }
 }
+
+public record UpdateCategoryRequest(string Name);

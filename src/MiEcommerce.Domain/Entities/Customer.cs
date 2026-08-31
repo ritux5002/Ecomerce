@@ -43,4 +43,13 @@ public class Customer : BaseEntity
         var emailVo = new Email(email);
         return new Customer(id, name, emailVo);
     }
+
+    public void Update(string name, string email)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("El nombre del cliente no puede estar vacío.", nameof(name));
+
+        Name = name;
+        Email = new Email(email);
+    }
 }

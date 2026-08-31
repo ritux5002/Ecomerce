@@ -72,6 +72,23 @@ public class Product : BaseEntity
         return new Product(id, name, description, price, stock, categoryId);
     }
 
+    public void UpdateDetails(string name, string description, int stock, Guid categoryId)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("El nombre del producto no puede estar vacío.", nameof(name));
+
+        if (stock < 0)
+            throw new ArgumentException("El stock no puede ser negativo.", nameof(stock));
+
+        if (categoryId == Guid.Empty)
+            throw new ArgumentException("El ID de categoría no puede estar vacío.", nameof(categoryId));
+
+        Name = name;
+        Description = description;
+        Stock = stock;
+        CategoryId = categoryId;
+    }
+
     public void UpdatePrice(decimal newPrice)
     {
         if (newPrice <= 0)

@@ -54,6 +54,7 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
         if (category is null)
             throw new Domain.Exceptions.NotFoundException(nameof(Category), command.CategoryId);
 
+        product.UpdateDetails(command.Name, command.Description, command.Stock, command.CategoryId);
         product.UpdatePrice(command.Price);
 
         await _productRepository.UpdateAsync(product, cancellationToken);

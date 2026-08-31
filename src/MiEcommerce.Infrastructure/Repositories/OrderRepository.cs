@@ -41,9 +41,24 @@ public class OrderRepository : IOrderRepository
         await _context.Orders.AddAsync(order, cancellationToken);
     }
 
+    public async Task AddOrderItemAsync(OrderItem item, CancellationToken cancellationToken = default)
+    {
+        // Se agrega explícitamente al DbSet (en vez de confiar en la detección automática
+        // de EF sobre la colección Order.Items) porque OrderItem usa una clave Guid
+        // generada del lado del cliente: cuando EF descubre esta entidad por primera vez
+        // a través de la navegación de una orden ya rastreada, no puede distinguir "es
+        // nueva" de "ya existe con este Id" y termina marcándola como Modified en lugar
+        // de Added, lo que genera un UPDATE sobre una fila que todavía no existe.
+        await _context.OrderItems.AddAsync(item, cancellationToken);
+    }
+
     public async Task UpdateAsync(Order order, CancellationToken cancellationToken = default)
     {
-        _context.Orders.Update(order);
+        if (_context.Entry(order).State == EntityState.Detached)
+        {
+            _context.Orders.Update(order);
+        }
+
         await Task.CompletedTask;
     }
 

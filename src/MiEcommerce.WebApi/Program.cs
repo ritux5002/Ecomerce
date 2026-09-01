@@ -7,6 +7,7 @@ using MiEcommerce.Application.Features.Auth;
 using MiEcommerce.Infrastructure;
 using MediatR;
 using MiEcommerce.WebApi.Filters;
+using MiEcommerce.WebApi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,6 +70,10 @@ builder.Services.AddValidatorsFromAssemblyContaining<LoginCommand>();
 
 // Infrastructure
 builder.Services.AddInfrastructure(builder.Configuration);
+
+// Exception handler (IExceptionHandler — se activa con app.UseExceptionHandler() más abajo)
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 

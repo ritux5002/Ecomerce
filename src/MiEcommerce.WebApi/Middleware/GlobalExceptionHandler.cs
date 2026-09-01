@@ -1,11 +1,9 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using MiEcommerce.Domain.Exceptions;
 
-namespace MiEcommerce.Infrastructure.Middleware;
+namespace MiEcommerce.WebApi.Middleware;
 
 public sealed class GlobalExceptionHandler : IExceptionHandler
 {

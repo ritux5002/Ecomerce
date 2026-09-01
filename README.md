@@ -95,7 +95,7 @@ Si `PaymentService` está apagado en el paso 6, `MiEcommerce` devuelve `503 Serv
 y no persiste ningún cambio (ni el estado `Confirmed` ni la reserva de stock): la orden queda
 intacta en `Draft`, lista para reintentar. Ver
 [`PaymentServiceClient`](src/MiEcommerce.Infrastructure/Services/PaymentServiceClient.cs) y
-[`GlobalExceptionHandler`](src/MiEcommerce.Infrastructure/Middleware/GlobalExceptionHandler.cs).
+[`GlobalExceptionHandler`](src/MiEcommerce.WebApi/Middleware/GlobalExceptionHandler.cs).
 
 El log de consola de PaymentService muestra cada `ProcessPaymentCommand` recibido, confirmando
 la comunicación entre los dos procesos independientes.

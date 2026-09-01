@@ -3,7 +3,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MiEcommerce.Application.Contracts.Infrastructure;
 using MiEcommerce.Domain.Interfaces;
-using MiEcommerce.Infrastructure.Middleware;
 using MiEcommerce.Infrastructure.Persistence;
 using MiEcommerce.Infrastructure.Repositories;
 using MiEcommerce.Infrastructure.Services;
@@ -42,10 +41,6 @@ public static class InfrastructureServiceExtensions
             client.BaseAddress = new Uri(configuration["PaymentService:BaseUrl"]!);
             client.Timeout = TimeSpan.FromSeconds(10);
         });
-
-        // Exception handler (IExceptionHandler — se activa con app.UseExceptionHandler() en Program.cs)
-        services.AddExceptionHandler<GlobalExceptionHandler>();
-        services.AddProblemDetails();
 
         return services;
     }
